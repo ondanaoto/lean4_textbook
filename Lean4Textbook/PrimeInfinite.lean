@@ -3,14 +3,12 @@ import Mathlib.Data.Nat.Prime
 
 /-- 自然数が0でも1でもなければ2以上 -/
 lemma two_le {m : ℕ} (h0 : m ≠ 0) (h1 : m ≠ 1) : 2 ≤ m := by
-  -- 仮定から m = 0 のときは考えなくていい
-  cases m; contradiction; rename_i n
+  -- 仮定から m = 0, 1 のときは考えなくていい
+  repeat
+    cases m; contradiction; rename_i m
   
-  -- 仮定から m = 1 のときも考えなくていい
-  cases n; contradiction; rename_i k
-  
-  -- 自然数 0 ≤ k に対して 2 ≤ k + 2 を示せばよい
-  simp_all; show 2 ≤ k + 2
+  -- 自然数 0 ≤ m に対して 2 ≤ m + 2 を示せばよい
+  simp_all; show 2 ≤ m + 2
 
   -- これは明らか
   simp_arith
