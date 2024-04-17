@@ -13,6 +13,8 @@ lemma two_le {m : ℕ} (h0 : m ≠ 0) (h1 : m ≠ 1) : 2 ≤ m := by
   -- これは明らか
   simp_arith
 
+  done
+
 /-- n が2以上なら， n を割り切る素数が存在する -/
 lemma exists_prime_factor {n : Nat} (h : 2 ≤ n) : ∃ p : Nat, p.Prime ∧ p ∣ n := by
   -- n が素数かどうかで場合分けをする
@@ -58,6 +60,12 @@ lemma exists_prime_factor {n : Nat} (h : 2 ≤ n) : ∃ p : Nat, p.Prime ∧ p �
     use p, pp
     trans m <;> assumption
 
+    done
+
+-- 階乗の記法を導入する
+-- これは Boolean の否定と競合しそうなので，普段は使わないほうが良いかもしれない
+postfix:100 "!" => Nat.factorial
+
 /-- 素数は無限に存在する． 具体的には，任意の自然数 n に対して， 
 n よりも大きな素数 p が存在する． -/
 theorem primes_infinite : ∀ n, ∃ p, n < p ∧ Nat.Prime p := by
@@ -65,12 +73,12 @@ theorem primes_infinite : ∀ n, ∃ p, n < p ∧ Nat.Prime p := by
   intro n
 
   -- k = (n + 1)! + 1 とする．ただし ! は階乗を表す.
-  set k := (n + 1).factorial + 1 with kh
+  set k := (n + 1)! + 1 with kh
 
   -- このとき k はもちろん 2 以上であるので，
   have ge2 : 2 ≤ k := calc
     2 ≤ n + 1 + 1 := by simp_arith 
-    _ ≤ (n + 1).factorial + 1 := by gcongr; apply Nat.self_le_factorial
+    _ ≤ (n + 1)! + 1 := by gcongr; apply Nat.self_le_factorial
     _ = k := by rw [← kh]
 
   -- 先に示した定理により， k には素因数 p が存在する.
@@ -86,7 +94,7 @@ theorem primes_infinite : ∀ n, ∃ p, n < p ∧ Nat.Prime p := by
   by_contra! ple
 
   -- このとき p は (n + 1)! の約数になる.
-  have : p ∣ (n + 1).factorial := by
+  have : p ∣ (n + 1)! := by
     -- なぜなら， (n + 1)! = 1 × 2 × ... × (n + 1) の中に p が含まれるからだ．
     exact Nat.dvd_factorial pp.pos (show p ≤ n + 1 from by linarith)
   
@@ -100,4 +108,6 @@ theorem primes_infinite : ∀ n, ∃ p, n < p ∧ Nat.Prime p := by
     simp
 
   -- これは p が素数であるという仮定に反しており，矛盾である．
-  simp_all
+  aesop
+
+  done
