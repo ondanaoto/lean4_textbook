@@ -68,14 +68,13 @@ theorem primes_infinite : ∀ n, ∃ p, n < p ∧ Nat.Prime p := by
   set k := (n + 1).factorial + 1 with kh
 
   -- このとき k はもちろん 2 以上であるので，
-  have : 2 ≤ k := calc
+  have ge2 : 2 ≤ k := calc
     2 ≤ n + 1 + 1 := by simp_arith 
     _ ≤ (n + 1).factorial + 1 := by gcongr; apply Nat.self_le_factorial
     _ = k := by rw [← kh]
 
   -- 先に示した定理により， k には素因数 p が存在する.
-  obtain ⟨p, pp, pdvd⟩ := exists_prime_factor this
-  clear this
+  obtain ⟨p, pp, pdvd⟩ := exists_prime_factor ge2
 
   -- この p が望みの性質を満たすことを示そう．
   refine ⟨p, ?_, pp⟩
