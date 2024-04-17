@@ -2,11 +2,17 @@ import Mathlib.Tactic
 import Mathlib.Data.Nat.Prime
 
 lemma two_le {m : ℕ} (h0 : m ≠ 0) (h1 : m ≠ 1) : 2 ≤ m := by
-  cases m; contradiction
-  case succ m =>
-    cases m; contradiction
-    repeat' apply Nat.succ_le_succ
-    apply zero_le
+  -- 仮定から m = 0 のときは考えなくていい
+  cases m; contradiction; rename_i n
+  
+  -- 仮定から m = 1 のときも考えなくていい
+  cases n; contradiction; rename_i k
+  
+  -- 自然数 0 ≤ k に対して 2 ≤ k + 2 を示せばよい
+  simp_all; show 2 ≤ k + 2
+
+  -- これは明らか
+  simp_arith
 
 lemma exists_prime_factor {n : Nat} (h : 2 ≤ n) : ∃ p : Nat, p.Prime ∧ p ∣ n := by
   by_cases np : n.Prime
