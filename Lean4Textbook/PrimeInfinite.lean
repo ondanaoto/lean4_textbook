@@ -58,23 +58,47 @@ lemma exists_prime_factor {n : Nat} (h : 2 ≤ n) : ∃ p : Nat, p.Prime ∧ p �
     use p, pp
     trans m <;> assumption
 
+/-- 素数は無限に存在する． 具体的には，任意の自然数 n に対して， 
+n よりも大きな素数 p が存在する． -/
 theorem primes_infinite : ∀ n, ∃ p, n < p ∧ Nat.Prime p := by
+  -- 任意に自然数 n が与えられたとする
   intro n
 
-  have : 2 ≤ Nat.factorial (n + 1) + 1 := by
-    have : 1 ≤ Nat.factorial (n + 1) := calc
-      1 ≤ n + 1 := by linarith
-      _ ≤ Nat.factorial (n + 1) := by apply Nat.self_le_factorial
-    linarith
-  rcases exists_prime_factor this with ⟨p, pp, pdvd⟩
-  refine' ⟨p, _, pp⟩
+  -- k = (n + 1)! + 1 とする．ただし ! は階乗を表す.
+  set k := (n + 1).factorial + 1 with kh
+
+  -- このとき k はもちろん 2 以上であるので，
+  have : 2 ≤ k := calc
+    2 ≤ n + 1 + 1 := by simp_arith 
+    _ ≤ (n + 1).factorial + 1 := by gcongr; apply Nat.self_le_factorial
+    _ = k := by rw [← kh]
+
+  -- 先に示した定理により， k には素因数 p が存在する.
+  obtain ⟨p, pp, pdvd⟩ := exists_prime_factor this
+  clear this
+
+  -- この p が望みの性質を満たすことを示そう．
+  refine ⟨p, ?_, pp⟩
+
+  -- p > n を示せばよい.
   show p > n
-  by_contra ple
-  push_neg  at ple
-  have : p ∣ Nat.factorial (n + 1) := by
-    apply Nat.dvd_factorial (pp.pos) (by linarith)
-  have : p ∣ 1 := by
+
+  -- 仮に p ≤ n だったとする．
+  by_contra! ple
+
+  -- このとき p は (n + 1)! の約数になる.
+  have : p ∣ (n + 1).factorial := by
+    -- なぜなら， (n + 1)! = 1 × 2 × ... × (n + 1) の中に p が含まれるからだ．
+    exact Nat.dvd_factorial pp.pos (show p ≤ n + 1 from by linarith)
+  
+  -- したがって p は 1 を割り切るということになる.
+  replace : p ∣ 1 := by
+    -- なぜなら， p は k の約数だったから (n + 1)! + 1 の約数でもあって
+    rw [kh] at pdvd
+
+    -- p の倍数同士の差をとっても p の倍数だからだ．
     convert Nat.dvd_sub' pdvd this
     simp
-  show False
-  aesop
+
+  -- これは p が素数であるという仮定に反しており，矛盾である．
+  simp_all
