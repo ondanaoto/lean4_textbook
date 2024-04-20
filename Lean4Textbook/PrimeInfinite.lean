@@ -3,8 +3,8 @@ import Mathlib.Tactic
 /-- 自然数が0でも1でもなければ2以上 -/
 lemma two_le {m : ℕ} (h0 : m ≠ 0) (h1 : m ≠ 1) : 2 ≤ m := by
   -- 仮定から m = 0, 1 のときは考えなくていい
-  repeat
-    cases m; contradiction; rename_i m
+  let .succ m := m
+  let .succ m := m
   
   -- 自然数 0 ≤ m に対して 2 ≤ m + 2 を示せばよい
   simp_all; show 2 ≤ m + 2
