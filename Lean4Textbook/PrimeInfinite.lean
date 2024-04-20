@@ -1,5 +1,4 @@
 import Mathlib.Tactic
-import Mathlib.Data.Nat.Prime
 
 /-- 自然数が0でも1でもなければ2以上 -/
 lemma two_le {m : ℕ} (h0 : m ≠ 0) (h1 : m ≠ 1) : 2 ≤ m := by
