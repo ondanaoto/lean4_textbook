@@ -5,7 +5,7 @@ lemma two_le {m : ℕ} (h0 : m ≠ 0) (h1 : m ≠ 1) : 2 ≤ m := by
   -- 仮定から m = 0, 1 のときは考えなくていい
   let .succ m := m
   let .succ m := m
-  
+
   -- 自然数 0 ≤ m に対して 2 ≤ m + 2 を示せばよい
   simp_all; show 2 ≤ m + 2
 
@@ -51,10 +51,10 @@ lemma exists_prime_factor {n : Nat} (h : 2 ≤ n) : ∃ p : Nat, p.Prime ∧ p �
 
     -- 帰納法の仮定から m には素因数が存在するので，
     have ih := exists_prime_factor mgt2
-    
+
     -- その素因数を p とする.
     obtain ⟨p, pp, pdvd⟩ := ih
-    
+
     -- その素数 p が望みの性質を満たす．
     use p, pp
     trans m <;> assumption
@@ -65,7 +65,7 @@ lemma exists_prime_factor {n : Nat} (h : 2 ≤ n) : ∃ p : Nat, p.Prime ∧ p �
 -- これは Boolean の否定と競合しそうなので，普段は使わないほうが良いかもしれない
 postfix:100 "!" => Nat.factorial
 
-/-- 素数は無限に存在する． 具体的には，任意の自然数 n に対して， 
+/-- 素数は無限に存在する． 具体的には，任意の自然数 n に対して，
 n よりも大きな素数 p が存在する． -/
 theorem primes_infinite : ∀ n, ∃ p, n < p ∧ Nat.Prime p := by
   -- 任意に自然数 n が与えられたとする
@@ -76,7 +76,7 @@ theorem primes_infinite : ∀ n, ∃ p, n < p ∧ Nat.Prime p := by
 
   -- このとき k はもちろん 2 以上であるので，
   have ge2 : 2 ≤ k := calc
-    2 ≤ n + 1 + 1 := by simp_arith 
+    2 ≤ n + 1 + 1 := by simp_arith
     _ ≤ (n + 1)! + 1 := by gcongr; apply Nat.self_le_factorial
     _ = k := by rw [← kh]
 
@@ -96,7 +96,7 @@ theorem primes_infinite : ∀ n, ∃ p, n < p ∧ Nat.Prime p := by
   have : p ∣ (n + 1)! := by
     -- なぜなら， (n + 1)! = 1 × 2 × ... × (n + 1) の中に p が含まれるからだ．
     exact Nat.dvd_factorial pp.pos (show p ≤ n + 1 from by linarith)
-  
+
   -- したがって p は 1 を割り切るということになる.
   replace : p ∣ 1 := by
     -- なぜなら， p は k の約数だったから (n + 1)! + 1 の約数でもあって
