@@ -1,4 +1,4 @@
--- ドモルガンの法則の中に一つだけ、証明に排中律が必要な命題がある。
+-- ド・モルガンの法則の中に一つだけ、証明に排中律が必要な命題がある。
 -- 何でしょうか？
 
 import Mathlib.Logic.Basic
@@ -12,6 +12,8 @@ import Mathlib.Logic.Basic
 -- 排中律`p ∨ ¬p`の実装
 #check Classical.em
 
+
+
 -- leanでは排中律は公理ではなく他の公理から導出されている
 #print axioms Classical.em
 
@@ -22,48 +24,96 @@ import Mathlib.Logic.Basic
 #print axioms not_and_or
 
 
--- では、自力でドモルガンの法則を示してみます！
--- 実況の時は、各証明の行ごとにコメントを書いていこうと思います。
+-- では、自力でド・モルガンの法則を示してみます！
 section MyDeMorgan
 
 variable (p q : Prop)
 
 theorem nor : ¬(p ∨ q) → (¬p) ∧ (¬q) := by
-  intro h
+  intro norpq
+  -- ¬p と¬q をそれぞれ示せばいい
   constructor
   . intro hp
-    apply h
+    apply norpq
     left
     exact hp
   . intro hq
-    apply h
+    apply norpq
     right
     exact hq
 
-theorem notandnot : (¬p) ∧ (¬q) → ¬(p ∨ q) := by
-  intro h porq
+theorem nor_reverse : (¬p) ∧ (¬q) → ¬(p ∨ q) := by
+  intro notpnotq porq
+  -- ¬pと¬qを導き、仮定を追加
+  obtain ⟨notp, notq⟩ := notpnotq
+  -- pの場合とqの場合で場合わけ
   rcases porq with hp | hq
-  . apply h.left
-    exact hp
-  . apply h.right
-    exact hq
-
-theorem notornot : (¬p) ∨ (¬q) → ¬(p ∧ q) := by
-  intro h pandq
-  rcases h with notp | notq
   . apply notp
-    exact pandq.left
-  . apply notq
-    exact pandq.right
+    exact hp
+    -- notqという関数にhqを代入することでFalse型のtermを構成することができる
+  . exact (notq hq)
+
+#print axioms nor_reverse
+
+theorem nand_reverse : (¬p) ∨ (¬q) → ¬(p ∧ q) := by
+  intro notp_or_notq pandq
+  rcases notp_or_notq with notp | notq
+  . exact notp (pandq.left)
+  . exact notq (pandq.right)
 
 theorem nand : ¬(p ∧ q) → (¬p) ∨ (¬q) := by
-  intro nand
-  have : p ∨ ¬p := by exact Classical.em p
-  rcases this with hp | notp
-  . apply Or.inr
+  intro nandpq
+  -- 排中律を使ってp ∨ ¬pを用意する
+  have p_or_notp : p ∨ ¬p := Classical.em p
+  rcases p_or_notp with hp | notp
+  . right
     intro hq
-    apply nand
-    exact And.intro hp hq
-  . exact Or.inl notp
+    apply nandpq
+    exact ⟨hp, hq⟩
+  . left;
+    -- 仮定の中に示したい命題と同じものがあるときは
+    -- assumptionで証明が完了する
+    assumption
+
+#print axioms nand
 
 end MyDeMorgan
+
+-- ド・モルガンの法則と弱い排中律が同値であることを示します
+-- 参考文献: https://ncatlab.org/nlab/show/weak+excluded+middle
+
+def de_morgan := ∀ (p q : Prop), ¬(p ∧ q) → (¬p) ∨ (¬q)
+
+def weak_em := ∀ (p : Prop), ¬ p ∨ ¬ ¬ p
+
+theorem de_morgan_iff_weak_em : de_morgan ↔ weak_em := by
+  constructor
+
+  . rw[de_morgan]
+    intro de_morgan p
+    have nand_p_notp : ¬(p ∧ ¬p) := by
+      intro p_and_notp
+      obtain ⟨hp, notp⟩ := p_and_notp
+      exact notp hp
+    apply de_morgan p ¬p
+    exact nand_p_notp
+  . intro weak_em
+    rw [de_morgan]
+    intro p q nandpq
+    have weak_p := weak_em p
+    have weak_q := weak_em q
+    rcases weak_p with notp | nnp
+    . left; assumption
+    . rcases weak_q with notq | nnq
+      . right; assumption
+        -- 仮定から矛盾を導けば良い
+        -- 矛盾からはどんな命題も従うので
+      . exfalso
+        apply nnp
+        intro hp
+        apply nnq
+        intro hq
+        apply nandpq
+        exact ⟨hp, hq⟩
+
+#print axioms de_morgan_iff_weak_em
