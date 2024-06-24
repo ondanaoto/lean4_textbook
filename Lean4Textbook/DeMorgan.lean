@@ -97,23 +97,18 @@ theorem de_morgan_iff_weak_em : de_morgan ↔ weak_em := by
       exact notp hp
     apply de_morgan p ¬p
     exact nand_p_notp
-  . intro weak_em
+  . intro weakem
     rw [de_morgan]
     intro p q nandpq
-    have weak_p := weak_em p
-    have weak_q := weak_em q
+    have weak_p := weakem p
     rcases weak_p with notp | nnp
     . left; assumption
-    . rcases weak_q with notq | nnq
-      . right; assumption
-        -- 仮定から矛盾を導けば良い
-        -- 矛盾からはどんな命題も従うので
-      . exfalso
-        apply nnp
+    . right
+      intro hq
+      have notp : ¬p := by
         intro hp
-        apply nnq
-        intro hq
         apply nandpq
         exact ⟨hp, hq⟩
+      exact nnp notp
 
 #print axioms de_morgan_iff_weak_em
